@@ -1,0 +1,27 @@
+FROM mr_consensus_base_eval3:latest
+
+WORKDIR /builds
+
+ENV XPDF_VERSION=xpdf-4.02
+RUN wget https://dl.xpdfreader.com/old/${XPDF_VERSION}.tar.gz
+RUN tar xvf ${XPDF_VERSION}.tar.gz
+RUN mv /builds/${XPDF_VERSION} /builds/src
+WORKDIR /builds/src
+RUN mkdir build
+WORKDIR /builds/src/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+RUN make
+RUN make install
+
+WORKDIR /builds/src
+COPY coverage-src-summary.sh /builds/src/
+RUN /builds/src/coverage-src-summary.sh
+
+WORKDIR /consensus
+
+WORKDIR /consensus
+COPY consensus.py /consensus/
+COPY parsers /consensus/parsers
+COPY coverage.py /consensus/
+
+CMD [ "/consensus/consensus.py" ]

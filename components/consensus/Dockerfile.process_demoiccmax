@@ -1,0 +1,26 @@
+FROM mr_consensus_base_eval3:latest
+
+RUN apt-get update && apt-get install -y libxml2-dev libtiff-dev
+
+WORKDIR /builds
+
+RUN git clone https://github.com/petervwyatt/DemoIccMAX.git src
+WORKDIR /builds/src
+RUN git checkout 25dc32fa4eee9fd8f9013dc1b4b2d5a858e4e95c
+WORKDIR /builds/src/dist
+RUN cmake -DENABLE_STATIC_LIBS=ON -DENABLE_SHARED_LIBS=OFF ../Build/Cmake
+RUN make -j 4
+RUN make install
+
+WORKDIR /builds/src
+COPY coverage-src-summary.sh /builds/src/
+RUN sh /builds/src/coverage-src-summary.sh
+
+WORKDIR /consensus
+
+WORKDIR /consensus
+COPY consensus.py /consensus/
+COPY parsers /consensus/parsers
+COPY coverage.py /consensus/
+
+CMD [ "python3", "/consensus/consensus.py" ]

@@ -1,0 +1,13 @@
+FROM mr_consensus_base_eval3:latest
+
+WORKDIR /builds
+
+RUN pip3 install pdfminer.six==20201018
+
+WORKDIR /consensus
+
+WORKDIR /consensus
+COPY consensus.py /consensus/
+COPY parsers /consensus/parsers
+
+CMD [ "/consensus/consensus.py" ]

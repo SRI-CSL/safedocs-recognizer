@@ -1,0 +1,1 @@
+FROM mr_consensus_base:latest

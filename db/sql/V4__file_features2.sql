@@ -1,0 +1,1 @@
+ALTER TABLE file_features ADD COLUMN features_list JSONB;

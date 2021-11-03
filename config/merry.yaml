@@ -1,0 +1,3 @@
+postgresConn: user=postgres password=postgres host='host.docker.internal' port=9432 sslmode=disable
+postgresConnHost: user=postgres password=postgres host='127.0.0.1' port=9432 sslmode=disable
+docsURL: host.docker.internal

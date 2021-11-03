@@ -1,0 +1,29 @@
+FROM mr_consensus_base_eval3:latest
+
+WORKDIR /builds
+
+ENV POPPLER_VERSION=poppler-0.86.1
+
+RUN git clone https://anongit.freedesktop.org/git/poppler/poppler.git
+WORKDIR /builds/poppler
+RUN git checkout ${POPPLER_VERSION}
+RUN mv /builds/poppler /builds/src
+WORKDIR /builds/src
+RUN mkdir build
+WORKDIR /builds/src/build
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=OFF
+RUN make
+RUN make install
+
+WORKDIR /builds/src
+COPY coverage-src-summary.sh /builds/src/
+RUN /builds/src/coverage-src-summary.sh
+
+WORKDIR /consensus
+
+WORKDIR /consensus
+COPY consensus.py /consensus/
+COPY parsers /consensus/parsers
+COPY coverage.py /consensus/
+
+CMD [ "/consensus/consensus.py" ]

@@ -1,0 +1,7 @@
+FROM mr_file-features_base:latest
+
+RUN pip3 install psycopg2
+COPY file-features.py /file-features/
+WORKDIR /file-features
+
+CMD ["./file-features.py"]

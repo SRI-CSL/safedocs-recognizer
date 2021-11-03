@@ -1,0 +1,1 @@
+ALTER TABLE consensus ADD COLUMN bitcov bytea;
