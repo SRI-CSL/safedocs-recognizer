@@ -19,8 +19,10 @@ RUN sh /builds/src/coverage-src-summary.sh
 WORKDIR /consensus
 
 WORKDIR /consensus
-COPY consensus.py /consensus/
-COPY parsers /consensus/parsers
-COPY coverage.py /consensus/
+COPY consensus.py .
+COPY parsers ./parsers
+COPY coverage.py .
+
+COPY cat_no_alpha.tif .
 
 CMD [ "python3", "/consensus/consensus.py" ]

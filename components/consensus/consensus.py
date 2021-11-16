@@ -86,6 +86,7 @@ if __name__ == "__main__":
         "gdal": parsers.gdal.run,
         "kaitai_nitf": parsers.kaitai_nitf.run,
         "pdfminer_six": parsers.pdfminer_six.run,
-        "demoiccmax": parsers.demoiccmax.iccdumpprofile 
+        "iccdumpprofile": parsers.demoiccmax.iccdumpprofile,
+        "iccapplyprofiles": parsers.demoiccmax.iccapplyprofiles 
     }
     process(parsers)
