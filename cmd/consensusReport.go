@@ -43,8 +43,7 @@ func runConsensusReportCmd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	var entries map[string]reportEntry
-	entries = make(map[string]reportEntry)
+	var entries map[string]reportEntry = make(map[string]reportEntry)
 
 	for rows.Next() {
 		var result result
@@ -52,12 +51,12 @@ func runConsensusReportCmd(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if _, ok := entries[result.Doc]; !ok {
+		if _, ok := entries[result.Filename]; !ok {
 			entry := reportEntry{}
 			entry.Status = "valid"
-			entries[result.Doc] = entry
+			entries[result.Filename] = entry
 		}
-		entry := entries[result.Doc]
+		entry := entries[result.Filename]
 		entry.Digest = result.Digest
 		entry.Testfile = result.Filename
 		if result.Status == "rejected" {
@@ -73,7 +72,7 @@ func runConsensusReportCmd(cmd *cobra.Command, args []string) {
 		// if entry.ParserFailureCount > 1 {
 		// 	entry.Status = "rejected"
 		// }
-		entries[result.Doc] = entry
+		entries[result.Filename] = entry
 		// log.Println(result)
 	}
 	rows.Close()
