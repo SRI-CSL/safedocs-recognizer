@@ -7,11 +7,11 @@ RUN wget https://mupdf.com/downloads/archive/${MUPDF_VERSION}.tar.gz
 RUN tar xvf ${MUPDF_VERSION}.tar.gz
 RUN mv /builds/${MUPDF_VERSION} /builds/src
 WORKDIR /builds/src
-RUN make build=profile HAVE_X11=no HAVE_GLUT=no prefix=/usr/local install
+RUN make -j $(nproc) build=profile HAVE_X11=no HAVE_GLUT=no prefix=/usr/local install
 
 WORKDIR /builds/src
 COPY coverage-src-summary.sh /builds/src/
-RUN /builds/src/coverage-src-summary.sh
+RUN sh /builds/src/coverage-src-summary.sh
 
 WORKDIR /consensus
 
@@ -20,4 +20,4 @@ COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 COPY coverage.py /consensus/
 
-CMD [ "/consensus/consensus.py" ]
+CMD [ "python3", "/consensus/consensus.py" ]

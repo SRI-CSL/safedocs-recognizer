@@ -114,10 +114,10 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	var existsToolRunQuery string
 	var rows pgx.Rows
 	if parserColumnExists {
-		existsToolRunQuery = "SELECT doc FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE parser = $1 AND baseline = $2"
+		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE parser = $1 AND baseline = $2"
 		rows, err = conn.Query(context.Background(), existsToolRunQuery, parser, baseline)
 	} else {
-		existsToolRunQuery = "SELECT doc FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE baseline = $1"
+		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE baseline = $1"
 		rows, err = conn.Query(context.Background(), existsToolRunQuery, baseline)
 	}
 	if err != nil {
@@ -135,9 +135,10 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	for _, line := range strings.Split(string(body), "\n") {
 		if strings.Contains(line, subset) {
 			filename := line[strings.LastIndex(line, "/")+1:]
+			filename = strings.Replace(filename, " ", "%20", -1)
 			_, exists := m[filename]
 			if !exists {
-				docs = append(docs, line)
+				docs = append(docs, strings.Replace(line, " ", "%20", -1))
 			}
 		}
 	}
@@ -211,7 +212,7 @@ type Meta struct {
 func worker(id int, jobs <-chan BatchJob, results chan<- string) {
 	for j := range jobs {
 		log.Println("worker: " + strconv.Itoa(id) + " took job for " + j.Meta.DocURL)
-		cmd := exec.Command("docker", "run", "--rm",
+		cmd := exec.Command("docker", "run", "--add-host=host.docker.internal:host-gateway", "--rm",
 			"-e", "MR_DOC_URL="+j.Meta.DocURL, "-e", "MR_POSTGRES_CONN="+j.Meta.PostgresConn,
 			"-e", "MR_PARSER="+j.Meta.Parser, "-e", "MR_IS_BASELINE="+j.Meta.IsBaseline,
 			"-e", "MR_UNIVERSE="+j.Meta.Universe,

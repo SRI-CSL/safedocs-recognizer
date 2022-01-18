@@ -8,12 +8,12 @@ RUN tar xvf ${QPDF_VERSION}.tar.gz
 RUN mv /builds/qpdf-${QPDF_VERSION} /builds/src
 WORKDIR /builds/src
 RUN ./configure
-RUN make
+RUN make -j $(nproc)
 RUN make install
 
 WORKDIR /builds/src
 COPY coverage-src-summary.sh /builds/src/
-RUN /builds/src/coverage-src-summary.sh
+RUN sh /builds/src/coverage-src-summary.sh
 
 WORKDIR /consensus
 
@@ -24,4 +24,4 @@ COPY coverage.py /consensus/
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-CMD [ "/consensus/consensus.py" ]
+CMD [ "python3", "/consensus/consensus.py" ]

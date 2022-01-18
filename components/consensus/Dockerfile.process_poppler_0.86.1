@@ -12,12 +12,12 @@ WORKDIR /builds/src
 RUN mkdir build
 WORKDIR /builds/src/build
 RUN cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=OFF
-RUN make
+RUN make -j $(nproc)
 RUN make install
 
 WORKDIR /builds/src
 COPY coverage-src-summary.sh /builds/src/
-RUN /builds/src/coverage-src-summary.sh
+RUN sh /builds/src/coverage-src-summary.sh
 
 WORKDIR /consensus
 
@@ -26,4 +26,4 @@ COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 COPY coverage.py /consensus/
 
-CMD [ "/consensus/consensus.py" ]
+CMD [ "python3", "/consensus/consensus.py" ]
