@@ -4,4 +4,4 @@ RUN pip3 install psycopg2
 COPY file-features.py /file-features/
 WORKDIR /file-features
 
-CMD ["./file-features.py"]
+CMD ["python3", "./file-features.py"]
