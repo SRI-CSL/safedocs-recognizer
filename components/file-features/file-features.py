@@ -122,13 +122,10 @@ if __name__ == "__main__":
     # MR_PARSER not used in this case
     # parser = os.environ['MR_PARSER']
 
-    url = os.environ['MR_DOC_URL']
+    urls = os.environ['MR_DOC_URL']
     db = os.environ['MR_POSTGRES_CONN']
     baseline = os.environ['MR_IS_BASELINE']
 
-    if len(sys.argv) == 3:
-        url = sys.argv[0]
-        db = sys.argv[1]
-        baseline = sys.argv[2]
-
-    process(url, db, baseline)
+    url_list = urls.split()
+    for url in url_list:
+        process(url, db, baseline)
