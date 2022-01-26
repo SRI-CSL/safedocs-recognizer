@@ -17,8 +17,37 @@ docker-compose up
 
 ### Examples
 
-#### Run the recognizer's consensus component over the entire document index using poppler's pdftoppm and marking the results as a baseline and set the universe label as 'univA'
+#### mupdf example
+
+Baseline and non-baseline processing (for performance reasons and prevent multiple passes over 1mil files, the consensus component combines bitcov and cfg tools)
 
 ```
-./recognizer process --component consensus --baseline --tag mr_poppler_0.86.1 --parser poppler_pdftoppm --universe univA
+./recognizer process --component consensus --baseline --tag mr_mupdf_1.16.1 --parser mupdf --subset evalThree --universe univA
+./recognizer process --component consensus --tag mr_mupdf_1.16.1 --parser mupdf --subset evalThree10kTest --universe univA
+./recognizer process --component file-features --baseline --tag mr_file-features --subset evalThree
+```
+
+Integrated components
+Derive model
+```
+./recognizer bitcov --parser mupdf --universe univA
+./recognizer bitcov --parser mupdf --universe univB
+```
+
+Metrics comparing 10k non-baseline files with models A and B
+```
+./recognizer bitcov-diff --model mupdf_univA_model.png --parser mupdf
+./recognizer bitcov-diff --model mupdf_univB_model.png --parser mupdf
+```
+
+Derive model
+```
+./recognizer flat-cfg --parser mupdf --universe univA
+./recognizer flat-cfg --parser mupdf --universe univB
+```
+
+Metrics comparing 10k non-baseline files with models A and B
+```
+./recognizer flat-cfg-diff --parser mupdf --model mupdf_univA_flat_cfg_model.txt
+./recognizer flat-cfg-diff --parser mupdf --model mupdf_univB_flat_cfg_model.txt
 ```
