@@ -1,0 +1,8 @@
+{
+    "directories":[
+        "./dir2"
+    ],
+    "files":[
+        "./dir1/foo.c"
+    ]
+}
