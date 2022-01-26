@@ -32,7 +32,6 @@ func init() {
 	processCmd.Flags().String("parser", "", "parser to use for processing")
 	processCmd.MarkFlagRequired("parser")
 	processCmd.Flags().String("subset", "", "document subset to process")
-	processCmd.MarkFlagRequired("subset")
 	processCmd.Flags().String("tag", "", "docker tag to run")
 	processCmd.MarkFlagRequired("tag")
 	processCmd.Flags().String("component", "", "component to run")
