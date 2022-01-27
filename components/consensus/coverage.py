@@ -84,22 +84,24 @@ with open('/builds/src/bitcov.png', 'wb') as png_out:
     w = png.Writer(len(bitmap), 1, greyscale=True, bitdepth=1)
     w.write(png_out, [bitmap])
 
+print("wrote /builds/src/bitcov.png")
 # print(offset)
 # subprocess.run(shlex.split('ls -l /builds/src/bitcov.png'))
 # subprocess.run(shlex.split('cat /builds/src/coverage-src-summary.json'))
 
 parser = os.environ['MR_PARSER']
 url = os.environ['CURRENT_URL']
-db = os.environ['MR_POSTGRES_CONN']
-baseline = os.environ['MR_IS_BASELINE']
+db = os.environ['MR_POSTGRES_CONN'] if 'MR_POSTGRES_CONN' in os.environ else ""
+baseline = os.environ['MR_IS_BASELINE'] if 'MR_IS_BASELINE' in os.environ else 'false'
 
-connection = psycopg2.connect(db)
-cursor = connection.cursor()
-bitcov_update = "UPDATE consensus SET bitcov = %s WHERE parser = %s AND doc = %s AND baseline = %s"
-with open('/builds/src/bitcov.png', 'rb') as f:
-    data = f.read()
-    binary_png = psycopg2.Binary(data)
+if db != "":
+    connection = psycopg2.connect(db)
+    cursor = connection.cursor()
+    bitcov_update = "UPDATE consensus SET bitcov = %s WHERE parser = %s AND doc = %s AND baseline = %s"
+    with open('/builds/src/bitcov.png', 'rb') as f:
+        data = f.read()
+        binary_png = psycopg2.Binary(data)
 
-cursor.execute(bitcov_update, (binary_png, parser, url, baseline))
-connection.commit()
-connection.close()
+    cursor.execute(bitcov_update, (binary_png, parser, url, baseline))
+    connection.commit()
+    connection.close()

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import urllib.request
 import shutil
 import hashlib
+import json
 import subprocess
 import psycopg2
 import parsers.caradoc
@@ -23,10 +25,10 @@ from parsers.cfg_utils import create_cfg_output
 
 def process(parsers):
     parser = os.environ['MR_PARSER']
-    urls = os.environ['MR_DOC_URL']
-    db = os.environ['MR_POSTGRES_CONN']
-    baseline = os.environ['MR_IS_BASELINE']
-    universe = os.environ['MR_UNIVERSE']
+    db = os.environ['MR_POSTGRES_CONN'] if 'MR_POSTGRES_CONN' in os.environ else ""
+    baseline = os.environ['MR_IS_BASELINE'] if 'MR_IS_BASELINE' in os.environ else "false"
+    universe = os.environ['MR_UNIVERSE'] if 'MR_UNIVERSE' in os.environ else "n/a"
+    urls = os.environ['MR_DOC_URL'] if 'MR_DOC_URL' in os.environ else "out.doc"
     
     is_baseline = False
     if baseline == "true":
@@ -35,8 +37,9 @@ def process(parsers):
     url_list = urls.split()
     for url in url_list:
         os.system("find /builds/src/ -type f -name '*.gcda' -delete")
-        with urllib.request.urlopen(url) as response, open(filename, 'wb') as output:
-            shutil.copyfileobj(response, output)
+        if 'http' in url:
+            with urllib.request.urlopen(url) as response, open(filename, 'wb') as output:
+                shutil.copyfileobj(response, output)
 
         sha256_hash = hashlib.sha256()
         hexdigest = ""
@@ -45,7 +48,10 @@ def process(parsers):
                 sha256_hash.update(byte_block)
             hexdigest = sha256_hash.hexdigest()
 
-        report = parsers.get(parser)(filename, hexdigest)
+        report = parsers.get(parser)(filename)
+        report['digest'] = hexdigest
+        report['MR_DOC_URL'] = url
+        report['MR_PARSER'] = parser
         # failed baseline should not be part of the baseline CFG
         report['callgrind'] = ""
         report['cfg'] = ""
@@ -53,16 +59,23 @@ def process(parsers):
         #if not (report['status'] == 'rejected' and is_baseline):
         create_cfg_output(report)
 
-        connection = psycopg2.connect(db)
-        cursor = connection.cursor()
-        # insert_query = "INSERT INTO " + table_name + " (parser, doc, digest, status, stdout, stderr, callgrind, cfg, cfg_image) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        # cfg_image is about 3MB per doc, doesn't scale
-        # TODO create rest endpoint to create the png
-        insert_query = "INSERT INTO consensus (parser, doc, baseline, digest, status, stdout, stderr, callgrind, cfg, tag) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        # binary_png = psycopg2.Binary(base64.b64decode(report['cfg_image']))
-        cursor.execute(insert_query, (parser, url, is_baseline, hexdigest, report['status'], report['stdout'], report['stderr'], report['callgrind'], report['cfg'], universe))
-        connection.commit()
-        connection.close()
+        if db != "":
+            connection = psycopg2.connect(db)
+            cursor = connection.cursor()
+            # insert_query = "INSERT INTO " + table_name + " (parser, doc, digest, status, stdout, stderr, callgrind, cfg, cfg_image) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            # cfg_image is about 3MB per doc, doesn't scale
+            # TODO create rest endpoint to create the png
+            insert_query = "INSERT INTO consensus (parser, doc, baseline, digest, status, stdout, stderr, callgrind, cfg, tag) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            # binary_png = psycopg2.Binary(base64.b64decode(report['cfg_image']))
+            cursor.execute(insert_query, (parser, url, is_baseline, hexdigest, report['status'], report['stdout'], report['stderr'], report['callgrind'], report['cfg'], universe))
+            connection.commit()
+            connection.close()
+        else:
+            output_report = {}
+            output_report['status'] = report['status']
+            output_report['stdout'] = report['stdout']
+            output_report['stderr'] = report['stderr']
+            print(json.dumps(output_report, indent=2))
 
         # check for bitcov tool mode
         os.environ["CURRENT_URL"] = url
@@ -74,7 +87,6 @@ if __name__ == "__main__":
         "mupdf": parsers.mupdf.run,
         "qpdf": parsers.qpdf.run,
         "qpdf_trace": parsers.qpdf_trace.run,
-        "poppler": parsers.poppler.run,
         "poppler_pdftotext": parsers.poppler.pdftotext,
         "poppler_pdftoppm": parsers.poppler.pdftoppm,
         "poppler_pdffonts": parsers.poppler.pdffonts,
@@ -89,4 +101,10 @@ if __name__ == "__main__":
         "iccdumpprofile": parsers.demoiccmax.iccdumpprofile,
         "iccapplyprofiles": parsers.demoiccmax.iccapplyprofiles 
     }
+
+    if len(sys.argv) == 2 and sys.argv[1] == "stdin":
+        with open("doc.pdf", "wb") as outfile:
+            for line in sys.stdin.buffer:
+                outfile.write(line)
+    
     process(parsers)

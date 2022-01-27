@@ -10,4 +10,5 @@ WORKDIR /consensus
 COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 
+ENV MR_PARSER=pdfbox
 CMD [ "/consensus/consensus.py" ]

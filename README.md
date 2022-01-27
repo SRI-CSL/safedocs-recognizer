@@ -15,6 +15,12 @@ The database should then be started to store processing results.
 docker-compose up
 ```
 
+Build the CLI tool
+
+```
+go build
+```
+
 ### Examples
 
 #### mupdf example

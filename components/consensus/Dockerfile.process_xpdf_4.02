@@ -24,4 +24,5 @@ COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 COPY coverage.py /consensus/
 
+ENV MR_PARSER=xpdf_pdftoppm
 CMD [ "python3", "/consensus/consensus.py" ]

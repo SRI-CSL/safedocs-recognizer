@@ -24,4 +24,5 @@ COPY coverage.py /consensus/
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
+ENV MR_PARSER=qpdf
 CMD [ "python3", "/consensus/consensus.py" ]

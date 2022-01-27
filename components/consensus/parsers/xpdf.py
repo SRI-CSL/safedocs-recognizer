@@ -5,12 +5,9 @@ import json
 from parsers.cfg_utils import callgrind, no_randomize_va
 
 
-def pdftoppm(filename: str, hexdigest: str):
+def pdftoppm(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {callgrind} pdftoppm {filename} -"), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
-    report['digest'] = hexdigest
     # don't store binary
     report['stdout'] = '' #result.stdout.decode('utf-8')
     report['stderr'] = result.stderr.decode('utf-8')
@@ -30,12 +27,9 @@ def pdftoppm(filename: str, hexdigest: str):
     return report
 
 
-def pdftotext(filename: str, hexdigest: str):
+def pdftotext(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {callgrind} pdftotext {filename}"), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
-    report['digest'] = hexdigest
     report['stdout'] = result.stdout.decode('utf-8')
     report['stderr'] = result.stderr.decode('utf-8')
     report['status'] = 'valid'
@@ -54,12 +48,9 @@ def pdftotext(filename: str, hexdigest: str):
     return report
 
 
-def pdffonts(filename: str, hexdigest: str):
+def pdffonts(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {callgrind} pdffonts {filename}"), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
-    report['digest'] = hexdigest
     report['stdout'] = result.stdout.decode('utf-8', errors='backslashreplace')
     report['stderr'] = result.stderr.decode('utf-8', errors='backslashreplace')
     report['status'] = 'valid'
