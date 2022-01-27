@@ -25,4 +25,6 @@ COPY coverage.py .
 
 COPY cat_no_alpha.tif .
 
-CMD [ "python3", "/consensus/consensus.py" ]
+ENV PYTHONUNBUFFERED=1
+ENV MR_PARSER=iccdumpprofile
+ENTRYPOINT [ "python3", "/consensus/consensus.py" ]

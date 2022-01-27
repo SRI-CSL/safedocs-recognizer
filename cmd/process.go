@@ -29,16 +29,12 @@ var processCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(processCmd)
-	processCmd.Flags().String("parser", "", "parser to use for processing")
-	processCmd.MarkFlagRequired("parser")
 	processCmd.Flags().String("subset", "", "document subset to process")
-	processCmd.MarkFlagRequired("subset")
 	processCmd.Flags().String("tag", "", "docker tag to run")
 	processCmd.MarkFlagRequired("tag")
 	processCmd.Flags().String("component", "", "component to run")
 	processCmd.MarkFlagRequired("component")
-	processCmd.Flags().String("universe", "", "mark the processing with a universe tag")
-	processCmd.MarkFlagRequired("universe")
+	processCmd.Flags().String("universe", "n/a", "mark the processing with a universe tag, defaults to n/a")
 	processCmd.Flags().Bool("baseline", false, "consider results as part of baseline")
 	processCmd.Flags().Int("processMax", -1, "only process a certain number at a time")
 	processCmd.Flags().Int("workerCount", 8, "number of parallel workers")
@@ -63,7 +59,6 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	postgresConn := viper.Get("postgresConn").(string)
 	postgresConnHost := viper.Get("postgresConnHost").(string)
 	docsURL := viper.Get("docsURL").(string)
-	parser, _ := cmd.Flags().GetString("parser")
 	subset, _ := cmd.Flags().GetString("subset")
 	component, _ := cmd.Flags().GetString("component")
 	baseline, _ := cmd.Flags().GetBool("baseline")
@@ -115,7 +110,7 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	var rows pgx.Rows
 	if parserColumnExists {
 		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE parser = $1 AND baseline = $2"
-		rows, err = conn.Query(context.Background(), existsToolRunQuery, parser, baseline)
+		rows, err = conn.Query(context.Background(), existsToolRunQuery, tag, baseline)
 	} else {
 		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE baseline = $1"
 		rows, err = conn.Query(context.Background(), existsToolRunQuery, baseline)
@@ -170,7 +165,7 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 		batchJob.Meta.PostgresConn = postgresConn
 		batchJob.Meta.IsBaseline = strconv.FormatBool(baseline)
 		batchJob.Meta.Universe = universe
-		batchJob.Meta.Parser = parser
+		batchJob.Meta.Parser = tag
 
 		jobs <- batchJob
 		jobCount++

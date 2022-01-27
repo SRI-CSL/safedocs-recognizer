@@ -5,13 +5,10 @@ import json
 from parsers.cfg_utils import python_prof, python_prof_to_callgrind, no_randomize_va
 
 
-def run(filename: str, hexdigest: str):
+def run(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {python_prof} /kaitai-nitf/kaitai-nitf.py {filename}"), capture_output=True)
     subprocess.run(shlex.split(python_prof_to_callgrind), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
-    report['digest'] = hexdigest
     report['status'] = 'valid'
     if result.returncode != 0:
         report['status'] = 'rejected'

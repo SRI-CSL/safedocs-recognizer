@@ -10,4 +10,6 @@ WORKDIR /consensus
 COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 
-CMD [ "/consensus/consensus.py" ]
+ENV PYTHONUNBUFFERED=1
+ENV MR_PARSER=pdfminer_six
+ENTRYPOINT [ "/consensus/consensus.py" ]

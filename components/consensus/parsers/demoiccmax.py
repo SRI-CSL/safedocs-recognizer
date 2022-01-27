@@ -11,11 +11,11 @@ import json
 from parsers.cfg_utils import callgrind, no_randomize_va
 
 
-def iccdumpprofile(filename: str, hexdigest: str):
+def iccdumpprofile(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {callgrind} /builds/src/dist/Tools/IccDumpProfile/iccDumpProfile -v {filename}"), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
+    report['MR_DOC_URL'] = doc_url
+    report['MR_PARSER'] = parser
     report['digest'] = hexdigest
     report['stdout'] = result.stdout.decode('utf-8', errors='backslashreplace')
     report['stderr'] = result.stderr.decode('utf-8', errors='backslashreplace')
@@ -30,12 +30,9 @@ def iccdumpprofile(filename: str, hexdigest: str):
     # print(json.dumps(report, indent=2))
     return report
 
-def iccapplyprofiles(filename: str, hexdigest: str):
+def iccapplyprofiles(filename: str):
     result = subprocess.run(shlex.split(f"{no_randomize_va} {callgrind} /builds/src/dist/Tools/IccApplyProfiles/iccApplyProfiles cat_no_alpha.tif cat_with_icc.tif 0 0 0 0 0 {filename} 0"), capture_output=True)
     report = {}
-    report['MR_DOC_URL'] = os.environ['MR_DOC_URL']
-    report['MR_PARSER'] = os.environ['MR_PARSER']
-    report['digest'] = hexdigest
     report['stdout'] = result.stdout.decode('utf-8', errors='backslashreplace')
     report['stderr'] = result.stderr.decode('utf-8', errors='backslashreplace')
     report['status'] = 'rejected'
