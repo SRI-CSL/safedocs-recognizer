@@ -105,3 +105,9 @@ if db != "":
     cursor.execute(bitcov_update, (binary_png, parser, url, baseline))
     connection.commit()
     connection.close()
+else:
+    loc = 0
+    for pixel in bitmap:
+        if pixel == 0:
+            loc = loc + 1
+    print(f"{loc} out of {len(bitmap)} lines visited")
