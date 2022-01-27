@@ -6,4 +6,6 @@ RUN pip3 install psycopg2
 COPY file-features.py /file-features/
 WORKDIR /file-features
 
-CMD ["python3", "./file-features.py"]
+ENV PYTHONUNBUFFERED=1
+ENV MR_PARSER=polyfile
+ENTRYPOINT ["python3", "./file-features.py"]
