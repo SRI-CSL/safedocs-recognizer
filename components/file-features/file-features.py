@@ -99,7 +99,7 @@ def process():
             cursor.execute(insert_query, (url, is_baseline, magic, hexdigest, features_s, features_list_s))
             connection.commit()
         else:
-            print(json.dumps(features, indent=2))
+            print(json.dumps(features_list, indent=2))
 
 
 def test_flatten1():
