@@ -73,7 +73,7 @@ def process(parsers):
         else:
             output_report = {}
             output_report['status'] = report['status']
-            output_report['stdout'] = report['stdout']
+            # output_report['stdout'] = report['stdout']
             output_report['stderr'] = report['stderr']
             print(json.dumps(output_report, indent=2))
 

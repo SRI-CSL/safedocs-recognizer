@@ -23,6 +23,6 @@ COPY parsers /consensus/parsers
 COPY coverage.py /consensus/
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
-
+ENV PYTHONUNBUFFERED=1
 ENV MR_PARSER=qpdf
-CMD [ "python3", "/consensus/consensus.py" ]
+ENTRYPOINT [ "python3", "/consensus/consensus.py" ]

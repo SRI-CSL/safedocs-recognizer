@@ -24,5 +24,6 @@ COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 COPY coverage.py /consensus/
 
+ENV PYTHONUNBUFFERED=1
 ENV MR_PARSER=xpdf_pdftoppm
-CMD [ "python3", "/consensus/consensus.py" ]
+ENTRYPOINT [ "python3", "/consensus/consensus.py" ]
