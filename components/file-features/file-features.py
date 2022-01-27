@@ -89,19 +89,17 @@ def process():
             struc_copy = copy.deepcopy(features['struc'][0])
             features_list = flatten(struc_copy)
             features_list.sort(key=lambda f: f['offset'])
-            features_list = json.dumps(features_list)
-            features = json.dumps(features)
+            features_list_s = json.dumps(features_list)
+            features_s = json.dumps(features)
 
         if db != "":
             connection = psycopg2.connect(db)
             cursor = connection.cursor()
             insert_query = "INSERT INTO file_features (doc, baseline, magic, digest, features, features_list) VALUES (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(insert_query, (url, is_baseline, magic, hexdigest, features, features_list))
+            cursor.execute(insert_query, (url, is_baseline, magic, hexdigest, features_s, features_list_s))
             connection.commit()
         else:
-            output_report = {}
-            output_report['results'] = features
-            print(json.dumps(output_report, indent=2))
+            print(json.dumps(features, indent=2))
 
 
 def test_flatten1():
