@@ -1,8 +1,13 @@
 {
     "directories":[
-        "./dir2"
+        "./test/",
+        "./qt5/",
+        "./cmake/",
+        "./cpp/tests/",
+        "./glib/demo/" ,
+        "./splash/"
     ],
     "files":[
-        "./dir1/foo.c"
+        ""
     ]
 }

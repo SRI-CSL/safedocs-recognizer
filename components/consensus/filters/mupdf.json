@@ -1,0 +1,11 @@
+{
+    "directories":[
+        "./docs/",
+        "./platform/",
+        "./source/tests/",
+        "./thirdparty/"
+    ],
+    "files":[
+        ""
+    ]
+}

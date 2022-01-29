@@ -1,0 +1,9 @@
+{
+    "directories":[
+        "./xpdf-qt/",
+        "./splash"
+    ],
+    "files":[
+        ""
+    ]
+}
