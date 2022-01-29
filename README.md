@@ -21,9 +21,25 @@ Build the CLI tool
 go build
 ```
 
+Build the tooling
+
+```
+sh build-components.sh
+```
+
 ### Examples
 
-#### mupdf example
+#### Running toosl without recognizer hardness
+
+```
+docker run --rm -i mr_file-features stdin < pdf-sample.pdf
+```
+
+```
+docker run --rm -i mr_qpdf_10.1.0 stdin < pdf-sample.pdf 
+```
+
+#### mupdf example within recognizer
 
 Baseline and non-baseline processing (for performance reasons and prevent multiple passes over 1mil files, the consensus component combines bitcov and cfg tools)
 

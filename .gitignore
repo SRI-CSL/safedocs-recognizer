@@ -1,0 +1,5 @@
+temp/
+recognizer
+report.json
+*.pdf
+.vscode/

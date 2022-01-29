@@ -70,16 +70,18 @@ def process(parsers):
             cursor.execute(insert_query, (parser, url, is_baseline, hexdigest, report['status'], report['stdout'], report['stderr'], report['callgrind'], report['cfg'], universe))
             connection.commit()
             connection.close()
-        else:
+
+        # check for bitcov tool mode
+        os.environ["CURRENT_URL"] = url
+        proc = subprocess.run(['python3', '/consensus/coverage.py'], cwd='/builds/src', capture_output=True)
+        if db == "":
             output_report = {}
             output_report['status'] = report['status']
             # output_report['stdout'] = report['stdout']
             output_report['stderr'] = report['stderr']
+            output_report['bitcov'] = proc.stdout.decode('utf-8', errors='backslashreplace').strip()
             print(json.dumps(output_report, indent=2))
 
-        # check for bitcov tool mode
-        os.environ["CURRENT_URL"] = url
-        proc = subprocess.run(['python3', '/consensus/coverage.py'], cwd='/builds/src')
 
 if __name__ == "__main__":
     parsers = {

@@ -84,7 +84,7 @@ with open('/builds/src/bitcov.png', 'wb') as png_out:
     w = png.Writer(len(bitmap), 1, greyscale=True, bitdepth=1)
     w.write(png_out, [bitmap])
 
-print("wrote /builds/src/bitcov.png")
+# print("wrote /builds/src/bitcov.png")
 # print(offset)
 # subprocess.run(shlex.split('ls -l /builds/src/bitcov.png'))
 # subprocess.run(shlex.split('cat /builds/src/coverage-src-summary.json'))
@@ -105,3 +105,9 @@ if db != "":
     cursor.execute(bitcov_update, (binary_png, parser, url, baseline))
     connection.commit()
     connection.close()
+else:
+    loc = 0
+    for pixel in bitmap:
+        if pixel == 0:
+            loc = loc + 1
+    print(f"{loc} out of {len(bitmap)} lines visited")
