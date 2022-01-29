@@ -18,7 +18,7 @@ RUN make install
 WORKDIR /builds/src
 COPY filters/poppler.json /builds/src/
 COPY filterfiles.py /builds/src/
-RUN ["python3", "./filterfiles.py"]
+RUN ["python3", "./filterfiles.py", "poppler"]
 
 WORKDIR /consensus
 
