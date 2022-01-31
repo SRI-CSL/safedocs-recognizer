@@ -10,8 +10,9 @@ WORKDIR /builds/src
 RUN make -j $(nproc) build=profile HAVE_X11=no HAVE_GLUT=no prefix=/usr/local install
 
 WORKDIR /builds/src
-COPY coverage-src-summary.sh /builds/src/
-RUN sh /builds/src/coverage-src-summary.sh
+COPY filters/mupdf.json /builds/src/
+COPY filterfiles.py /builds/src/
+RUN ["python3", "./filterfiles.py", "mupdf"]
 
 WORKDIR /consensus
 
