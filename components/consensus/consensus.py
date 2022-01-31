@@ -72,8 +72,6 @@ def process(parsers):
         create_cfg_output(report)
 
         if db != "":
-            connection = psycopg2.connect(db)
-            cursor = connection.cursor()
             # insert_query = "INSERT INTO " + table_name + " (parser, doc, digest, status, stdout, stderr, callgrind, cfg, cfg_image) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
             # cfg_image is about 3MB per doc, doesn't scale
             # TODO create rest endpoint to create the png
@@ -87,12 +85,13 @@ def process(parsers):
         os.environ["CURRENT_URL"] = url
         proc = subprocess.run(['python3', '/consensus/coverage.py'], cwd='/builds/src', capture_output=True)
         if db == "":
-            output_report = {}
-            output_report['status'] = report['status']
-            # output_report['stdout'] = report['stdout']
-            output_report['stderr'] = report['stderr']
-            output_report['bitcov'] = proc.stdout.decode('utf-8', errors='backslashreplace').strip()
-            print(json.dumps(output_report, indent=2))
+            print("status: " + report['status'])
+            print("")
+            print("stderr")
+            print(report["stderr"])
+            print("")
+            print("bitcov")
+            print(proc.stdout.decode('utf-8', errors='backslashreplace').strip())
 
 
 if __name__ == "__main__":

@@ -73,3 +73,12 @@ Metrics comparing 10k non-baseline files with models A and B
 ./recognizer flat-cfg-diff --parser mupdf --model mupdf_univA_flat_cfg_model.txt
 ./recognizer flat-cfg-diff --parser mupdf --model mupdf_univB_flat_cfg_model.txt
 ```
+
+#### Misc
+
+Helper scripts
+
+Extract PDF Object that QPDF fails to parse
+```
+docker run --rm -i mr_file-features stdin < localdocs/temp/163e61e6c3dd768854b2ead5616cbc2c2dbd9c8559aaca9fb8e8005f20d8e397_parsley | awk -v pdf_object=$(docker run --rm -i mr_qpdf stdin < localdocs/temp/163e61e6c3dd768854b2ead5616cbc2c2dbd9c8559aaca9fb8e8005f20d8e397_parsley | awk -f invalid_object.awk) -f extract_bytes.awk
+```

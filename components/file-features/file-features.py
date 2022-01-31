@@ -105,13 +105,12 @@ def process():
             features_s = json.dumps(features)
 
         if db != "":
-            # connection = psycopg2.connect(db)
-            # cursor = connection.cursor()
             insert_query = "INSERT INTO file_features (doc, baseline, magic, digest, features, features_list) VALUES (%s, %s, %s, %s, %s, %s)"
             cursor.execute(insert_query, (url, is_baseline, magic, hexdigest, features_s, features_list_s))
             connection.commit()
         else:
-            print(json.dumps(features_list, indent=2))
+            for feature in features_list:
+                print(feature['name'], feature['type'], feature['offset'], feature['size'])
 
 
 def test_flatten1():
