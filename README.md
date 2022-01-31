@@ -29,7 +29,7 @@ sh build-components.sh
 
 ### Examples
 
-#### Running toosl without recognizer hardness
+#### Running tools without recognizer hardness
 
 ```
 docker run --rm -i mr_file-features stdin < pdf-sample.pdf
