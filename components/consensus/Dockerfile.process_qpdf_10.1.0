@@ -12,8 +12,9 @@ RUN make -j $(nproc)
 RUN make install
 
 WORKDIR /builds/src
-COPY coverage-src-summary.sh /builds/src/
-RUN sh /builds/src/coverage-src-summary.sh
+COPY filters/qpdf.json /builds/src/
+COPY filterfiles.py /builds/src/
+RUN ["python3", "./filterfiles.py", "qpdf"]
 
 WORKDIR /consensus
 
