@@ -3,6 +3,7 @@
 import os
 import sys
 import urllib.request
+from urllib.parse import urlparse
 import shutil
 import hashlib
 import json
@@ -36,6 +37,17 @@ def process(parsers):
     filename = 'doc.pdf'
     url_list = urls.split()
     for url in url_list:
+        if db != "":
+            p = urlparse(url)
+            filepath = p.path.rsplit("/", 1)[-1]
+            connection = psycopg2.connect(db)
+            cursor = connection.cursor()
+            exists_query = "SELECT doc FROM consensus WHERE substring(doc from '(?:.+/)(.+)') = %s and parser = %s"
+            cursor.execute(exists_query, (filepath, parser))
+            if cursor.fetchone() != None:
+                print(f'{filepath} has already been processed, skipping')
+                continue
+        
         os.system("find /builds/src/ -type f -name '*.gcda' -delete")
         if 'http' in url:
             with urllib.request.urlopen(url) as response, open(filename, 'wb') as output:

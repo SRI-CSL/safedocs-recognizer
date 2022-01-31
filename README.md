@@ -44,9 +44,9 @@ docker run --rm -i mr_qpdf_10.1.0 stdin < pdf-sample.pdf
 Baseline and non-baseline processing (for performance reasons and prevent multiple passes over 1mil files, the consensus component combines bitcov and cfg tools)
 
 ```
-./recognizer process --component consensus --baseline --tag mr_mupdf_1.16.1 --parser mupdf --subset evalThree --universe univA
-./recognizer process --component consensus --tag mr_mupdf_1.16.1 --parser mupdf --subset evalThree10kTest --universe univA
-./recognizer process --component file-features --baseline --tag mr_file-features --subset evalThree
+./recognizer process --tag mr_mupdf_1.16.1 --subset evalThree --universe univA --baseline
+./recognizer process --tag mr_mupdf_1.16.1 --subset evalThree10kTest --universe univA
+./recognizer process --tag mr_file-features --subset evalThree --baseline
 ```
 
 Integrated components

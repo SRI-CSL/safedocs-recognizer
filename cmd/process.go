@@ -32,8 +32,6 @@ func init() {
 	processCmd.Flags().String("subset", "", "document subset to process")
 	processCmd.Flags().String("tag", "", "docker tag to run")
 	processCmd.MarkFlagRequired("tag")
-	processCmd.Flags().String("component", "", "component to run")
-	processCmd.MarkFlagRequired("component")
 	processCmd.Flags().String("universe", "n/a", "mark the processing with a universe tag, defaults to n/a")
 	processCmd.Flags().Bool("baseline", false, "consider results as part of baseline")
 	processCmd.Flags().Int("processMax", -1, "only process a certain number at a time")
@@ -60,7 +58,6 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	postgresConnHost := viper.Get("postgresConnHost").(string)
 	docsURL := viper.Get("docsURL").(string)
 	subset, _ := cmd.Flags().GetString("subset")
-	component, _ := cmd.Flags().GetString("component")
 	baseline, _ := cmd.Flags().GetBool("baseline")
 	processMax, _ := cmd.Flags().GetInt("processMax")
 	tag, _ := cmd.Flags().GetString("tag")
@@ -80,7 +77,6 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	jobsAlreadyProcessed := 0
 
 	var docs []string
-	// var filenames []string
 	docIndexURL := fmt.Sprintf("http://127.0.0.1:%d/sd_index.gz", port.Load().(int))
 	resp, err := http.Get(docIndexURL)
 	if err != nil {
@@ -97,44 +93,9 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	var m map[string]int = make(map[string]int)
-
-	var existsParserColumn = "SELECT column_name from information_schema.columns WHERE table_name = '" + strings.ReplaceAll(component, "-", "_") + "' AND column_name = 'parser'"
-	var columnName string
-	result := conn.QueryRow(context.Background(), existsParserColumn).Scan(&columnName)
-	parserColumnExists := true
-	if result != nil {
-		parserColumnExists = false
-	}
-	var existsToolRunQuery string
-	var rows pgx.Rows
-	if parserColumnExists {
-		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE parser = $1 AND baseline = $2"
-		rows, err = conn.Query(context.Background(), existsToolRunQuery, tag, baseline)
-	} else {
-		existsToolRunQuery = "SELECT substring(doc from '(?:.+/)(.+)') AS filename FROM " + strings.ReplaceAll(component, "-", "_") + " WHERE baseline = $1"
-		rows, err = conn.Query(context.Background(), existsToolRunQuery, baseline)
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	for rows.Next() {
-		var url string
-		if err := rows.Scan(&url); err != nil {
-			log.Fatalf("cannot read row: %v", err)
-		}
-		fname := url[strings.LastIndex(url, "/")+1:]
-		m[fname] = 1
-	}
-
 	for _, line := range strings.Split(string(body), "\n") {
 		if strings.Contains(line, subset) {
-			filename := line[strings.LastIndex(line, "/")+1:]
-			filename = strings.Replace(filename, " ", "%20", -1)
-			_, exists := m[filename]
-			if !exists {
-				docs = append(docs, strings.Replace(line, " ", "%20", -1))
-			}
+			docs = append(docs, strings.Replace(line, " ", "%20", -1))
 		}
 	}
 
@@ -165,7 +126,6 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 		batchJob.Meta.PostgresConn = postgresConn
 		batchJob.Meta.IsBaseline = strconv.FormatBool(baseline)
 		batchJob.Meta.Universe = universe
-		batchJob.Meta.Parser = tag
 
 		jobs <- batchJob
 		jobCount++
@@ -178,7 +138,6 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 			finishedJobs++
 			log.Println(finishedJobs, "containers completed")
 			if finishedJobs >= jobCount {
-				// os.Exit(0)
 				break
 			}
 		}
@@ -197,7 +156,6 @@ type BatchJob struct {
 
 // Meta metadata for job
 type Meta struct {
-	Parser       string `json:"MR_PARSER"`
 	IsBaseline   string `json:"MR_IS_BASELINE"`
 	DocURL       string `json:"MR_DOC_URL"`
 	PostgresConn string `json:"MR_POSTGRES_CONN"`
@@ -209,7 +167,7 @@ func worker(id int, jobs <-chan BatchJob, results chan<- string) {
 		log.Println("worker: " + strconv.Itoa(id) + " took job for " + j.Meta.DocURL)
 		cmd := exec.Command("docker", "run", "--add-host=host.docker.internal:host-gateway", "--rm",
 			"-e", "MR_DOC_URL="+j.Meta.DocURL, "-e", "MR_POSTGRES_CONN="+j.Meta.PostgresConn,
-			"-e", "MR_PARSER="+j.Meta.Parser, "-e", "MR_IS_BASELINE="+j.Meta.IsBaseline,
+			"-e", "MR_IS_BASELINE="+j.Meta.IsBaseline,
 			"-e", "MR_UNIVERSE="+j.Meta.Universe,
 			j.Tag)
 		cmd.Stdout = os.Stdout

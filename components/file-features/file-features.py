@@ -3,6 +3,7 @@
 import os
 import sys
 import urllib.request
+from urllib.parse import urlparse
 import shutil
 import hashlib
 import copy
@@ -57,6 +58,17 @@ def process():
     filename = 'doc.pdf'
     url_list = urls.split()
     for url in url_list:
+        if db != "":
+            p = urlparse(url)
+            filepath = p.path.rsplit("/", 1)[-1]
+            connection = psycopg2.connect(db)
+            cursor = connection.cursor()
+            exists_query = "SELECT doc FROM file_features WHERE substring(doc from '(?:.+/)(.+)') = '%s'"
+            cursor.execute(exists_query % filepath)
+            if cursor.fetchone() != None:
+                print(f'{filepath} has already been processed, skipping')
+                continue
+        
         if 'http' in url:
             with urllib.request.urlopen(url) as response, open(filename, 'wb') as output:
                 shutil.copyfileobj(response, output)
@@ -93,8 +105,8 @@ def process():
             features_s = json.dumps(features)
 
         if db != "":
-            connection = psycopg2.connect(db)
-            cursor = connection.cursor()
+            # connection = psycopg2.connect(db)
+            # cursor = connection.cursor()
             insert_query = "INSERT INTO file_features (doc, baseline, magic, digest, features, features_list) VALUES (%s, %s, %s, %s, %s, %s)"
             cursor.execute(insert_query, (url, is_baseline, magic, hexdigest, features_s, features_list_s))
             connection.commit()
