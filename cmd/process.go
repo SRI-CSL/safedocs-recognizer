@@ -164,7 +164,7 @@ type Meta struct {
 
 func worker(id int, jobs <-chan BatchJob, results chan<- string) {
 	for j := range jobs {
-		log.Println("worker: " + strconv.Itoa(id) + " took job for " + j.Meta.DocURL)
+		log.Println("worker: " + strconv.Itoa(id) + " took job for " + strconv.Itoa(len(strings.Split(j.Meta.DocURL, " "))) + " documents")
 		cmd := exec.Command("docker", "run", "--add-host=host.docker.internal:host-gateway", "--rm",
 			"-e", "MR_DOC_URL="+j.Meta.DocURL, "-e", "MR_POSTGRES_CONN="+j.Meta.PostgresConn,
 			"-e", "MR_IS_BASELINE="+j.Meta.IsBaseline,
