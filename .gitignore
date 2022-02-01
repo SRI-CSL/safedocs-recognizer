@@ -3,3 +3,4 @@ recognizer
 report.json
 *.pdf
 .vscode/
+sd_index.gz
