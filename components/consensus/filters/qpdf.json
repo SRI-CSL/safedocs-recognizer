@@ -1,7 +1,8 @@
 {
     "directories":[
         "./examples/",
-        "./libtests/"
+        "./libtests/",
+        "./fuzz/"
     ],
     "files":[
         ""
