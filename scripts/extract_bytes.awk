@@ -1,10 +1,11 @@
 #!/usr/bin/awk -f
 
 BEGIN {
-    print "extracting", pdf_object;
+    print "finding", pdf_object;
 }
 
 $1==pdf_object {
-    print "dd if=<file> of=invalid_object.bin bs=1 count="$4" skip="$3-1
-    print "hexdump -v <file> -c -n "$4" -s "$3
+    print "Run:"
+    print "dd of=invalid_object.bin bs=1 count="$4" skip="$3-1" if=<file>"
+    print "hexdump -c -n "$4" -s "$3" -v <file>"
 }
