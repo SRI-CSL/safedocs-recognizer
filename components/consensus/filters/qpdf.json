@@ -6,6 +6,8 @@
         "./qpdf/test_"
     ],
     "files":[
-        "zlib-flate.cc"
+        "zlib-flate.cc",
+        "qpdf-ctest.c",
+        "pdf_from_scratch.cc"
     ]
 }
