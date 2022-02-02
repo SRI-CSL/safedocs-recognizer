@@ -2,9 +2,10 @@
     "directories":[
         "./examples/",
         "./libtests/",
-        "./fuzz/"
+        "./fuzz/",
+        "./qpdf/test_"
     ],
     "files":[
-        ""
+        "zlib-flate.cc"
     ]
 }
