@@ -1,0 +1,3 @@
+FROM mr_poppler_pdftoppm:latest
+
+ENV MR_PARSER=poppler_pdffonts

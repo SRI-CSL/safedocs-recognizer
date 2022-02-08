@@ -1,0 +1,3 @@
+FROM mr_xpdf_pdftoppm:latest
+
+ENV MR_PARSER=xpdf_pdffonts
