@@ -10,6 +10,4 @@ WORKDIR /consensus
 COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
 
-ENV PYTHONUNBUFFERED=1
 ENV MR_PARSER=pdfbox
-ENTRYPOINT [ "/consensus/consensus.py" ]

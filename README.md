@@ -6,13 +6,13 @@ DARPA SafeDocs TA1 software suite to bundle and orchestrate various format-aware
 The first step is copying (or create a symlink) documents to the localdocs directory and creating the document index.
 
 ```
-build_index.sh
+sh build_index.sh
 ```
 
 The database should then be started to store processing results.
 
 ```
-docker-compose up
+docker compose up
 ```
 
 Build the CLI tool

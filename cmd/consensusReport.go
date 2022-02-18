@@ -80,9 +80,9 @@ func runConsensusReportCmd(cmd *cobra.Command, args []string) {
 	var reportEntries []reportEntry
 	// var lackingQuorem []reportEntry
 	for _, v := range entries {
-		if v.ParserValidCount+v.ParserFailureCount < 4 {
-			v.Notes += "one or more parsers didn't or failed to run against pdf"
-		}
+		// if v.ParserValidCount+v.ParserFailureCount < 4 {
+		// 	v.Notes += "one or more parsers didn't or failed to run against pdf"
+		// }
 		if v.ParserValidCount <= v.ParserFailureCount {
 			v.Status = "rejected"
 		}
@@ -105,7 +105,7 @@ func runConsensusReportCmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(filename, " written to disk")
+	fmt.Println(filename, "written to disk")
 
 	// jsonReport, err = json.MarshalIndent(lackingQuorem, "", "  ")
 	// if err != nil {
@@ -142,7 +142,7 @@ var reportQueryDocFilter = `
 SELECT substring(doc from '(?:.+/)(.+)') AS filename, 
 	   doc, parser, status, stderr, digest  
 FROM consensus
-WHERE baseline = $1 AND doc LIKE $2 and parser in ('poppler', 'qpdf', 'caradoc', 'mupdf', 'poppler2009evaltwovanilla')
+WHERE baseline = $1 AND doc LIKE $2
 GROUP BY doc, parser, status, digest, stderr
 ORDER BY doc, status
 `

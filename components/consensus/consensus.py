@@ -6,7 +6,6 @@ import urllib.request
 from urllib.parse import urlparse
 import shutil
 import hashlib
-import json
 import subprocess
 import psycopg2
 import parsers.caradoc
@@ -21,6 +20,8 @@ import parsers.kaitai_nitf
 import parsers.qpdf_trace
 import parsers.pdfminer_six
 import parsers.demoiccmax
+import parsers.gst
+import parsers.ffmpeg
 from parsers.cfg_utils import create_cfg_output
 
 
@@ -83,15 +84,16 @@ def process(parsers):
 
         # check for bitcov tool mode
         os.environ["CURRENT_URL"] = url
-        proc = subprocess.run(['python3', '/consensus/coverage.py'], cwd='/builds/src', capture_output=True)
-        if db == "":
-            print("status: " + report['status'])
-            print("")
-            print("stderr")
-            print(report["stderr"])
-            print("")
-            print("bitcov")
-            print(proc.stdout.decode('utf-8', errors='backslashreplace').strip())
+        if os.path.isdir("/builds/src"):
+            proc = subprocess.run(['python3', '/consensus/coverage.py'], cwd='/builds/src', capture_output=True)
+            if db == "":
+                print("status: " + report['status'])
+                print("")
+                print("stderr")
+                print(report["stderr"])
+                print("")
+                print("bitcov")
+                print(proc.stdout.decode('utf-8', errors='backslashreplace').strip())
 
 
 if __name__ == "__main__":
@@ -112,7 +114,9 @@ if __name__ == "__main__":
         "kaitai_nitf": parsers.kaitai_nitf.run,
         "pdfminer_six": parsers.pdfminer_six.run,
         "iccdumpprofile": parsers.demoiccmax.iccdumpprofile,
-        "iccapplyprofiles": parsers.demoiccmax.iccapplyprofiles 
+        "iccapplyprofiles": parsers.demoiccmax.iccapplyprofiles,
+        "gst": parsers.gst.gst,
+        "ffmpeg": parsers.ffmpeg.ffmpeg
     }
 
     if len(sys.argv) == 2 and sys.argv[1] == "stdin":

@@ -18,3 +18,6 @@ RUN pip3 install pypng
 ENV CFLAGS="-fprofile-arcs -ftest-coverage -pg -fno-omit-frame-pointer"
 ENV CXXFLAGS="-fprofile-arcs -ftest-coverage -pg -fno-omit-frame-pointer"
 ENV LDFLAGS="-lgcov --coverage -pg"
+
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT [ "python3", "/consensus/consensus.py" ]

@@ -1,13 +1,12 @@
 FROM mr_consensus_base_eval3:latest
 
-WORKDIR /builds
-
-RUN pip3 install pdfminer.six==20201018
+RUN apt-get update && apt-get install -y ffmpeg
 
 WORKDIR /consensus
 
 WORKDIR /consensus
 COPY consensus.py /consensus/
 COPY parsers /consensus/parsers
+COPY coverage.py /consensus/
 
-ENV MR_PARSER=pdfminer_six
+ENV MR_PARSER=ffmpeg
