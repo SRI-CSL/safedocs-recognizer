@@ -8,7 +8,7 @@ def gst(filename: str):
     report = {}
     report['stdout'] = result.stdout.decode('utf-8', errors='backslashreplace')
     report['stderr'] = result.stderr.decode('utf-8', errors='backslashreplace')
-    report['status'] = 'valid'
+    report['status'] = 'valid' if result.returncode == 0 else 'rejected'
     stderr_lines = result.stderr.decode('utf-8', errors='backslashreplace').split('\n')
     for line in stderr_lines:
         if 'error' in line.lower():
