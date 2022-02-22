@@ -40,10 +40,10 @@ def process(parsers):
     for url in url_list:
         if db != "":
             p = urlparse(url)
-            filepath = p.path.rsplit("/", 1)[-1]
+            filepath = '%'+p.path
             connection = psycopg2.connect(db)
             cursor = connection.cursor()
-            exists_query = "SELECT doc FROM consensus WHERE substring(doc from '(?:.+/)(.+)') = %s and parser = %s"
+            exists_query = """SELECT doc FROM consensus WHERE doc like %s and parser = %s"""
             cursor.execute(exists_query, (filepath, parser))
             if cursor.fetchone() != None:
                 print(f'{filepath} has already been processed, skipping')
