@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -53,6 +54,10 @@ func startFileServer(dir string) {
 	log.Println(err)
 }
 
+type docResult struct {
+	Doc string
+}
+
 func runProcessCmd(cmd *cobra.Command, args []string) {
 	postgresConn := viper.Get("postgresConn").(string)
 	postgresConnHost := viper.Get("postgresConnHost").(string)
@@ -76,6 +81,28 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	jobCount := 0
 	jobsAlreadyProcessed := 0
 
+	docsProcessed := make(map[string]int)
+	parser := tag[3:]
+	rows, err := conn.Query(context.Background(), alreadyProcessed, parser, baseline)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var result docResult
+		err = rows.Scan(&result.Doc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		url, err := url.Parse(result.Doc)
+		if err != nil {
+			continue
+		}
+		docsProcessed[strings.TrimLeft(url.Path, "/")] = 1
+	}
+	rows.Close()
+
+	fmt.Printf("%d already processed for %s\n", len(docsProcessed), parser)
+
 	var docs []string
 	docIndexURL := fmt.Sprintf("http://127.0.0.1:%d/sd_index.gz", port.Load().(int))
 	resp, err := http.Get(docIndexURL)
@@ -94,10 +121,14 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 	}
 
 	for _, line := range strings.Split(string(body), "\n") {
+		if _, ok := docsProcessed[line]; ok {
+			continue
+		}
 		if strings.Contains(line, subset) {
 			docs = append(docs, strings.Replace(line, " ", "%20", -1))
 		}
 	}
+	fmt.Printf("%d docs set for processing\n", len(docs))
 
 	numJobs := len(docs)
 	jobs := make(chan BatchJob, numJobs)
@@ -106,7 +137,7 @@ func runProcessCmd(cmd *cobra.Command, args []string) {
 		go worker(w, jobs, results)
 	}
 
-	containerBatchSize := 10
+	containerBatchSize := 50
 	for i := 0; i < len(docs); i += containerBatchSize {
 		if processMax > -1 && jobCount >= processMax*containerBatchSize {
 			log.Println("processMax: submitted maximum jobs, waiting for completion...")
@@ -179,3 +210,7 @@ func worker(id int, jobs <-chan BatchJob, results chan<- string) {
 		results <- j.Meta.DocURL
 	}
 }
+
+var alreadyProcessed = `
+SELECT doc FROM consensus WHERE parser = $1 and baseline = $2
+`

@@ -12,6 +12,8 @@ for root, subdirs, files in os.walk("./", followlinks=True):
     for file in files:
         sha256_hash = hashlib.sha256()
         hexdigest = ""
+        if file.lower().endswith(".txt"):
+            continue
         try:
             fpath = root[2:] + '/' + file
             # get sha256 hash

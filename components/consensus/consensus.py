@@ -37,18 +37,11 @@ def process(parsers):
         is_baseline = True
     filename = 'doc.pdf'
     url_list = urls.split()
+    if db != "":
+        connection = psycopg2.connect(db)
+        cursor = connection.cursor()
+
     for url in url_list:
-        if db != "":
-            p = urlparse(url)
-            filepath = '%'+p.path
-            connection = psycopg2.connect(db)
-            cursor = connection.cursor()
-            exists_query = """SELECT doc FROM consensus WHERE doc like %s and parser = %s"""
-            cursor.execute(exists_query, (filepath, parser))
-            if cursor.fetchone() != None:
-                print(f'{filepath} has already been processed, skipping')
-                continue
-        
         os.system("find /builds/src/ -type f -name '*.gcda' -delete")
         if 'http' in url:
             with urllib.request.urlopen(url) as response, open(filename, 'wb') as output:
@@ -80,7 +73,7 @@ def process(parsers):
             # binary_png = psycopg2.Binary(base64.b64decode(report['cfg_image']))
             cursor.execute(insert_query, (parser, url, is_baseline, hexdigest, report['status'], report['stdout'], report['stderr'], report['callgrind'], report['cfg'], universe))
             connection.commit()
-            connection.close()
+            # connection.close()
 
         # check for bitcov tool mode
         os.environ["CURRENT_URL"] = url
@@ -95,6 +88,8 @@ def process(parsers):
                 print("bitcov")
                 print(proc.stdout.decode('utf-8', errors='backslashreplace').strip())
 
+    if db != "":
+        connection.close()
 
 if __name__ == "__main__":
     parsers = {
